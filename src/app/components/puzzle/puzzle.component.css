@@ -1,5 +1,5 @@
 #url{
-  width: 40%; display: block;
+  display: block;
 }
 
 mat-expansion-panel{
@@ -12,4 +12,9 @@ mat-expansion-panel mat-form-field{
 
 div button {
   margin-top: 1rem;
+}
+
+svg {
+	display: block;
+	margin: 0 auto;
 }
