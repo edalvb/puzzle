@@ -1,0 +1,15 @@
+#url{
+  width: 40%; display: block;
+}
+
+mat-expansion-panel{
+  width: 40%;
+}
+
+mat-expansion-panel mat-form-field{
+  margin: 0 1rem;
+}
+
+div button {
+  margin-top: 1rem;
+}

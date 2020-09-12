@@ -1,0 +1,79 @@
+<mat-horizontal-stepper [linear]="true" #stepper>
+
+  <mat-step [stepControl]="firstFormGroup">
+    <form [formGroup]="firstFormGroup">
+      <ng-template matStepLabel>Specify the properties the image</ng-template>
+
+      <mat-form-field id="url" appearance="outline">
+        <mat-label>Writ a url the image</mat-label>
+        <input name="url1" matInput type="url" placeholder="url from image" formControlName="url"
+          [(ngModel)]="propertiesImage.urlImage" required>
+        <mat-icon matSuffix>link</mat-icon>
+        <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Write the number parts horizontally</mat-label>
+        <input name="part" matInput type="number" placeholder="A number" formControlName="part"
+          [(ngModel)]="propertiesImage.partHorizontal" required>
+        <mat-icon matSuffix>format_list_numbered</mat-icon>
+        <mat-error *ngIf="firstFormGroup.controls.part.invalid">{{getErrorMessage(firstFormGroup.controls.part)}}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Write the number parts vertically</mat-label>
+        <input name="part" matInput type="number" placeholder="A number" formControlName="part"
+          [(ngModel)]="propertiesImage.partVertical" required>
+        <mat-icon matSuffix>format_list_numbered</mat-icon>
+        <mat-error *ngIf="firstFormGroup.controls.part.invalid">{{getErrorMessage(firstFormGroup.controls.part)}}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Width</mat-label>
+        <input name="width" matInput type="number" [(ngModel)]="propertiesImage.width"
+          [ngModelOptions]="{standalone: true}">
+        <mat-icon matSuffix>format_list_numbered</mat-icon>
+        <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Height</mat-label>
+        <input name="height" matInput type="number" [(ngModel)]="propertiesImage.height" min="1"
+          [ngModelOptions]="{standalone: true}">
+        <mat-icon matSuffix>format_list_numbered</mat-icon>
+        <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
+        </mat-error>
+      </mat-form-field>
+
+      <div *ngIf="this.firstFormGroup.valid">
+        <button mat-button matStepperNext (click)="process()">Process</button>
+      </div>
+
+    </form>
+  </mat-step>
+
+  <mat-step [stepControl]="secondFormGroup">
+    <form [formGroup]="secondFormGroup">
+      <ng-template matStepLabel>Jigsaw Puzzle</ng-template>
+        <svg #entorno> </svg>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <p>You are now done.</p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="stepper.reset()">Reset</button>
+    </div>
+  </mat-step>
+
+</mat-horizontal-stepper>
