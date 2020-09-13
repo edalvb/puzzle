@@ -57,6 +57,22 @@ export class PuzzleComponent implements OnInit {
     });
 
     this.getScreenSize();
+
+    this.renderer.listen("document", "mousedown", (event: MouseEvent) => {
+      this.selectElement(event);
+    });
+
+    this.renderer.listen("document", "mousemove", (event: MouseEvent) => {
+      this.moveElement(event);
+    });
+
+    this.renderer.listen("document", "mouseout", (event: MouseEvent) => {
+      this.deSelectElemento(event);
+    });
+
+    this.renderer.listen("document", "mouseup", (event: MouseEvent) => {
+      this.deSelectElemento(event);
+    });
   }
 
   getErrorMessage(element: AbstractControl) {
@@ -221,83 +237,66 @@ export class PuzzleComponent implements OnInit {
   getScreenSize(event?) {
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
-    console.log(this.screenHeight, this.screenWidth);
   }
 
   /**
    * Captura la posición del mouse y de la pieza seleccionada y asigna a esta última la propiedad onmousemove
    * @param event evento capturado
    */
-  @HostListener('document:mousedown', ['$event'])
-  selectElement(event) {
-    this.imageSelected = this.reordenar(event);
-    this.rectSelected = this.getRectToImage();
+  selectElement(event: MouseEvent) {
+    if (this.starGame) {
+      this.imageSelected = this.reordenar(event);
+      this.rectSelected = this.getRectToImage();
 
-    this.currentX = event.clientX;
-    this.currentY = event.clientY;
+      this.currentX = event.clientX;
+      this.currentY = event.clientY;
 
-    this.currenPositionImageX = parseFloat(this.getAttribute(this.imageSelected, "x"));
-    this.currenPositionImageY = parseFloat(this.getAttribute(this.imageSelected, "y"));
-    this.currenPositionRectX = parseFloat(this.getAttribute(this.rectSelected, "x"));
-    this.currenPositionRectY = parseFloat(this.getAttribute(this.rectSelected, "y"));
-
-    this.renderer.setAttribute(this.imageSelected, "onmousemove", "");
+      this.currenPositionImageX = parseFloat(this.getAttribute(this.imageSelected, "x"));
+      this.currenPositionImageY = parseFloat(this.getAttribute(this.imageSelected, "y"));
+      this.currenPositionRectX = parseFloat(this.getAttribute(this.rectSelected, "x"));
+      this.currenPositionRectY = parseFloat(this.getAttribute(this.rectSelected, "y"));
+    }
   }
 
-  @HostListener('document:mousemove', ['$event'])
   moveElement(event) {
-    /** Diferencia entre la posición horizontal del puntero actual y la anterior*/
-    let dx = event.clientX - this.currentX;
-    /** Diferencia entre la posición vertical del puntero actual y la anterior*/
-    let dy = event.clientY - this.currentY;
+    if (event.target == this.imageSelected && this.starGame) {
+      /** Diferencia entre la posición horizontal del puntero actual y la anterior*/
+      let dx = event.clientX - this.currentX;
+      /** Diferencia entre la posición vertical del puntero actual y la anterior*/
+      let dy = event.clientY - this.currentY;
 
-    this.currenPositionImageX += dx;
-    this.currenPositionImageY += dy;
-    this.currenPositionRectX += dx;
-    this.currenPositionRectY += dy
+      this.currenPositionImageX += dx;
+      this.currenPositionImageY += dy;
+      this.currenPositionRectX += dx;
+      this.currenPositionRectY += dy
 
-    this.renderer.setAttribute(this.imageSelected, "x", `${this.currenPositionImageX}`);
-    this.renderer.setAttribute(this.imageSelected, "y", `${this.currenPositionImageY}`);
-    this.renderer.setAttribute(this.rectSelected, "x", `${this.currenPositionRectX}`);
-    this.renderer.setAttribute(this.rectSelected, "y", `${this.currenPositionRectY}`);
+      this.renderer.setAttribute(this.imageSelected, "x", `${this.currenPositionImageX}`);
+      this.renderer.setAttribute(this.imageSelected, "y", `${this.currenPositionImageY}`);
+      this.renderer.setAttribute(this.rectSelected, "x", `${this.currenPositionRectX}`);
+      this.renderer.setAttribute(this.rectSelected, "y", `${this.currenPositionRectY}`);
 
-    this.currentX = event.clientX;
-    this.currentY = event.clientY;
+      this.currentX = event.clientX;
+      this.currentY = event.clientY;
 
-    this.renderer.setAttribute(this.imageSelected, "onmouseout", "");
-    this.renderer.setAttribute(this.imageSelected, "onmouseup", "");
-
-    this.iman();
+      this.iman();
+    }
   }
 
-  @HostListener('document:mouseout', ['$event'])
-  onMouseout() {
-    this.deSelectElemento();
-  }
-
-  @HostListener('document:mouseup', ['$event'])
-  onMouseup() {
-    this.deSelectElemento();
-  }
-
-  deSelectElemento() {
-    this.verifyWin();
-    if (this.imageSelected != 0) {
-      this.renderer.removeAttribute(this.imageSelected, "onmousemove");
-      this.renderer.removeAttribute(this.imageSelected, "onmouseout");
-      this.renderer.removeAttribute(this.imageSelected, "onmouseup");
-      this.imageSelected = 0;
+  deSelectElemento(event) {
+    if (event.target == this.imageSelected && this.starGame) {
+      this.verifyWin();
+      if (this.imageSelected != 0) {
+        this.imageSelected = 0;
+      }
     }
   }
 
   verifyWin() {
     let bien_ubicada: number = 0;
-    console.log(this.entorno);
     this.entorno.nativeElement.childNodes.forEach((element, key) => {
       if (key > 1) {
         let posx = parseFloat(this.getAttribute(element.firstChild, "x"));
         let posy = parseFloat(this.getAttribute(element.firstChild, "y"));
-        console.log(element.firstChild);
         if (0 == posx && 0 == posy) {
           bien_ubicada++;
         }

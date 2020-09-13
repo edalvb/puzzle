@@ -1,4 +1,5 @@
-<input [ngModel]="propertiesImage.points" disabled>
+<h3> Points: {{propertiesImage.points}} </h3>
+
 <ng-container *ngIf="!starGame">
 
   <mat-form-field id="url" appearance="outline">
@@ -58,8 +59,8 @@
 
 <div>
   <button *ngIf="!starGame" mat-button (click)="start()">Start</button>
-  <button *ngIf="starGame" mat-button (click)="restart()">Restart</button>
-  <!--<button *ngIf="starGame" mat-button (click)="reRandom()">Re random</button>-->
+  <!--<button *ngIf="starGame" mat-button (click)="restart()">Restart</button>
+  <button *ngIf="starGame" mat-button (click)="reRandom()">Re random</button>-->
 </div>
 
 <svg #entorno> </svg>
