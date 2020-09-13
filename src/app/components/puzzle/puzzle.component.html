@@ -1,7 +1,8 @@
+<input [ngModel]="propertiesImage.points" disabled>
 <ng-container *ngIf="!starGame">
 
   <mat-form-field id="url" appearance="outline">
-    <mat-label>Writ a url the image</mat-label>
+    <mat-label>Url the image</mat-label>
     <input name="url1" matInput type="url" placeholder="url from image" [(ngModel)]="propertiesImage.urlImage" required>
     <mat-icon matSuffix>link</mat-icon>
     <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
@@ -9,7 +10,7 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline">
-    <mat-label>Write the number parts horizontally</mat-label>
+    <mat-label>Parts horizontally</mat-label>
     <input name="part" matInput type="number" placeholder="A number" [(ngModel)]="propertiesImage.partHorizontal"
       required>
     <mat-icon matSuffix>format_list_numbered</mat-icon>
@@ -18,7 +19,7 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline">
-    <mat-label>Write the number parts vertically</mat-label>
+    <mat-label>Parts vertically</mat-label>
     <input name="part" matInput type="number" placeholder="A number" [(ngModel)]="propertiesImage.partVertical"
       required>
     <mat-icon matSuffix>format_list_numbered</mat-icon>
@@ -29,7 +30,7 @@
   <mat-form-field appearance="outline">
     <mat-label>Width</mat-label>
     <input name="width" matInput type="number" [(ngModel)]="propertiesImage.width"
-      [ngModelOptions]="{standalone: true}">
+      [ngModelOptions]="{standalone: true}" required>
     <mat-icon matSuffix>format_list_numbered</mat-icon>
     <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
     </mat-error>
@@ -38,7 +39,16 @@
   <mat-form-field appearance="outline">
     <mat-label>Height</mat-label>
     <input name="height" matInput type="number" [(ngModel)]="propertiesImage.height" min="1"
-      [ngModelOptions]="{standalone: true}">
+      [ngModelOptions]="{standalone: true}" required>
+    <mat-icon matSuffix>format_list_numbered</mat-icon>
+    <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Atleast covered</mat-label>
+    <input name="height" matInput type="number" [(ngModel)]="propertiesImage.covered" min="1" max="100"
+      [ngModelOptions]="{standalone: true}" required>
     <mat-icon matSuffix>format_list_numbered</mat-icon>
     <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
     </mat-error>
