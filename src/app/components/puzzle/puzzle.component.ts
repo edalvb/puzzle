@@ -1,4 +1,4 @@
-import { Component, Renderer2, ViewChild, ElementRef, OnInit, HostListener } from '@angular/core';
+import { Component, Renderer2, ViewChild, ElementRef, OnInit, HostListener, DoCheck } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 
 const reg = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
@@ -8,10 +8,8 @@ const reg = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
   templateUrl: './puzzle.component.html',
   styleUrls: ['./puzzle.component.css',]
 })
-export class PuzzleComponent implements OnInit {
-  @ViewChild("imagen") imagen: ElementRef;
+export class PuzzleComponent implements OnInit, DoCheck {
   @ViewChild("entorno") entorno: ElementRef;
-  @ViewChild("clip") clip: ElementRef;
 
   starGame = false;
 
@@ -48,6 +46,7 @@ export class PuzzleComponent implements OnInit {
     private renderer: Renderer2) { }
 
   ngOnInit() {
+
     this.firstFormGroup = this._formBuilder.group({
       part: ['', [Validators.required]],
       url: ['', [Validators.required/*, Validators.pattern(reg)*/]]
@@ -60,19 +59,28 @@ export class PuzzleComponent implements OnInit {
 
     this.renderer.listen("document", "mousedown", (event: MouseEvent) => {
       this.selectElement(event);
+      console.log("mousedown");
     });
 
     this.renderer.listen("document", "mousemove", (event: MouseEvent) => {
       this.moveElement(event);
+      console.log("mousemove");
     });
 
     this.renderer.listen("document", "mouseout", (event: MouseEvent) => {
-      this.deSelectElemento(event);
+      this.deSelectElement(event);
+      console.log("mouseout");
     });
 
     this.renderer.listen("document", "mouseup", (event: MouseEvent) => {
-      this.deSelectElemento(event);
+      this.deSelectElement(event);
+      console.log("mouseup");
     });
+  }
+
+  ngDoCheck() {
+    /*console.log("DoCheck")
+    console.log(this.entorno);*/
   }
 
   getErrorMessage(element: AbstractControl) {
@@ -117,8 +125,7 @@ export class PuzzleComponent implements OnInit {
 
         let positionInitRectX = x * widhtPart;
 
-        /** Posición inicial en Y del Rectangulo */
-        let positionInitRectY = y * heightPart;
+        let positionInitRectY = y * heightPart; // Posición inicial en Y del Rectangulo
 
         const MOVE_IN_X = widhtPart + positionInitRectX + Math.floor(Math.random() * widhtPart);
 
@@ -127,64 +134,87 @@ export class PuzzleComponent implements OnInit {
 
         let positionRectX = positionInitRectX - MOVE_IN_X;
 
-        /** Se va a mover desde 0 hasta maxHeight */
-        let positionRectY = positionInitRectY + MOVE_IN_Y;
+        let positionRectY = positionInitRectY + MOVE_IN_Y; // Se va a mover desde 0 hasta maxHeight
 
         let positionImageX = -MOVE_IN_X;
 
-        /** Se va a mover desde (-positionInitRectY) hasta maxHeight */
-        let positionImageY = MOVE_IN_Y;
+        let positionImageY = MOVE_IN_Y; // Se va a mover desde (-positionInitRectY) hasta maxHeight
 
-        let newClipPath = this.renderer.createElement("clipPath", "http://www.w3.org/2000/svg");
-        let newRect = this.renderer.createElement("rect", "http://www.w3.org/2000/svg");
-        let newG = this.renderer.createElement("g", "http://www.w3.org/2000/svg");
-        let newImage = this.renderer.createElement("image", "http://www.w3.org/2000/svg");
+        this.renderer.appendChild(newDefs, this.createClipPath(idClip, widhtPart, heightPart, positionRectX, positionRectY));
 
-        this.renderer.appendChild(newClipPath, newRect);
-        this.renderer.appendChild(newDefs, newClipPath);
-
-        if (x == y && y == 0) {
-          let newG1 = this.renderer.createElement("g", "http://www.w3.org/2000/svg");
-          let newImage1 = this.renderer.createElement("image", "http://www.w3.org/2000/svg");
-
-          this.renderer.appendChild(newG1, newImage1);
-          this.renderer.appendChild(this.entorno.nativeElement, newG1);
-
-          this.renderer.setAttribute(newImage1, "preserveAspectRatio", "none");
-          this.renderer.setAttribute(newImage1, "href", `${this.propertiesImage.urlImage}`, "xlink");
-          this.renderer.setAttribute(newImage1, "height", `${this.propertiesImage.height}`);
-          this.renderer.setAttribute(newImage1, "width", `${this.propertiesImage.width}`);
-          this.renderer.setAttribute(newImage1, "x", `${0}`);
-          this.renderer.setAttribute(newImage1, "y", `${0}`);
-          this.renderer.setStyle(newImage1, "opacity", "0.2");
+        if (x == 0 && x == y) {
+          this.renderer.appendChild(this.entorno.nativeElement, this.createG(this.propertiesImage.urlImage, this.propertiesImage.height, this.propertiesImage.width, 0.2));
         }
 
-        this.renderer.appendChild(newG, newImage);
-        this.renderer.appendChild(this.entorno.nativeElement, newG);
-
-        this.renderer.setProperty(newClipPath, "id", idClip);
-
-        this.renderer.setAttribute(newRect, "x", `${positionRectX}`);
-        this.renderer.setAttribute(newRect, "y", `${positionRectY}`);
-        this.renderer.setAttribute(newRect, "width", `${widhtPart}`);
-        this.renderer.setAttribute(newRect, "height", `${heightPart}`);
-        //this.renderer.setStyle(newRect, "stroke", "#000");
-
-        this.renderer.addClass(newG, "padre");
-        this.renderer.setProperty(newG, "id", `padre${x}${y}`);
-
-        this.renderer.setAttribute(newImage, "preserveAspectRatio", "none");
-        this.renderer.addClass(newImage, "movil");
-        this.renderer.setAttribute(newImage, "href", `${this.propertiesImage.urlImage}`, "xlink");
-        this.renderer.setAttribute(newImage, "height", `${this.propertiesImage.height}`);
-        this.renderer.setAttribute(newImage, "width", `${this.propertiesImage.width}`);
-        this.renderer.setAttribute(newImage, "x", `${positionImageX}`);
-        this.renderer.setAttribute(newImage, "y", `${positionImageY}`);
-        this.renderer.setAttribute(newImage, "clip-path", `url(#${idClip})`);
-        this.renderer.setAttribute(newImage, "onmousedown", "");
+        this.renderer.appendChild(this.entorno.nativeElement, this.createG(
+          this.propertiesImage.urlImage,
+          this.propertiesImage.height,
+          this.propertiesImage.width,
+          null,
+          positionImageX,
+          positionImageY,
+          idClip
+        ));
 
       }
     }
+  }
+
+  createImage(
+    href: string,
+    height: number,
+    width: number,
+    opacity: number = null,
+    x: number = 0,
+    y: number = 0,
+    idClipPath: string = null,
+    preserveAspectRatio: string = "none",
+  ) {
+    let newImage = this.renderer.createElement("image", "http://www.w3.org/2000/svg");
+
+    this.renderer.setAttribute(newImage, "href", `${href}`, "xlink");
+    this.renderer.setAttribute(newImage, "height", `${height}`);
+    this.renderer.setAttribute(newImage, "width", `${width}`);
+    opacity == null ? null : this.renderer.setStyle(newImage, "opacity", `${opacity}`);
+    this.renderer.setAttribute(newImage, "x", `${x}`);
+    this.renderer.setAttribute(newImage, "y", `${y}`);
+    idClipPath == null ? null : this.renderer.setAttribute(newImage, "clip-path", `url(#${idClipPath})`);
+    this.renderer.setAttribute(newImage, "preserveAspectRatio", `${preserveAspectRatio}`);
+
+    return newImage;
+  }
+
+  createRect(width: number, height: number, x: number, y: number) {
+    let newRect = this.renderer.createElement("rect", "http://www.w3.org/2000/svg");
+
+    this.renderer.setAttribute(newRect, "width", `${width}`);
+    this.renderer.setAttribute(newRect, "height", `${height}`);
+    this.renderer.setAttribute(newRect, "x", `${x}`);
+    this.renderer.setAttribute(newRect, "y", `${y}`);
+
+    return newRect;
+  }
+
+  createClipPath(idClipPath: string, width: number, height: number, x: number, y: number) {
+    let newClipPath = this.renderer.createElement("clipPath", "http://www.w3.org/2000/svg");
+    this.renderer.setProperty(newClipPath, "id", idClipPath);
+    this.renderer.appendChild(newClipPath, this.createRect(width, height, x, y));
+    return newClipPath;
+  }
+
+  createG(
+    href: string,
+    height: number,
+    width: number,
+    opacity: number = null,
+    x: number = 0,
+    y: number = 0,
+    idClipPath: string = null,
+    preserveAspectRatio: string = "none",
+  ) {
+    let newG = this.renderer.createElement("g", "http://www.w3.org/2000/svg");
+    this.renderer.appendChild(newG, this.createImage(href, height, width, opacity, x, y, idClipPath, preserveAspectRatio));
+    return newG;
   }
 
   clearSVG() {
@@ -215,14 +245,6 @@ export class PuzzleComponent implements OnInit {
     this.renderer.setAttribute(this.rectSelected, "x", `${parseFloat(this.getAttribute(this.rectSelected, "x")) + x}`);
     this.renderer.setAttribute(this.rectSelected, "y", `${parseFloat(this.getAttribute(this.rectSelected, "y")) + y}`);
 
-  }
-
-  remplacePosition(xRect: number, yRect: number, xImage: number, yImage: number) {
-    // Sum x a atribute x o y the Image and Rectangle
-    /*this.renderer.setAttribute(this.imageSelected, "x", `${parseFloat(this.getAttribute(this.imageSelected, "x")) + x}`);
-    this.renderer.setAttribute(this.imageSelected, "y", `${parseFloat(this.getAttribute(this.imageSelected, "y")) + y}`);
-    this.renderer.setAttribute(myRect, "x", `${parseFloat(this.getAttribute(myRect, "x")) + x}`);
-    this.renderer.setAttribute(myRect, "y", `${parseFloat(this.getAttribute(myRect, "y")) + y}`);*/
   }
 
   getRectToImage() {
@@ -258,7 +280,7 @@ export class PuzzleComponent implements OnInit {
     }
   }
 
-  moveElement(event) {
+  moveElement(event: MouseEvent) {
     if (event.target == this.imageSelected && this.starGame) {
       /** Diferencia entre la posición horizontal del puntero actual y la anterior*/
       let dx = event.clientX - this.currentX;
@@ -282,7 +304,7 @@ export class PuzzleComponent implements OnInit {
     }
   }
 
-  deSelectElemento(event) {
+  deSelectElement(event: MouseEvent) {
     if (event.target == this.imageSelected && this.starGame) {
       this.verifyWin();
       if (this.imageSelected != 0) {
@@ -324,7 +346,7 @@ export class PuzzleComponent implements OnInit {
   /**
    * Coloca al nodo seleccionado al final de la lista del svg
    */
-  reordenar(event: any) {
+  reordenar(event: MouseEvent) {
     let nodeG = this.renderer.parentNode(event.target); // obtenemos el padre del nodo que desencadenó un evento
     let cloneG = nodeG.cloneNode(true); // clonamos al padre y lo guardamos en clone
     this.renderer.removeChild(this.entorno.nativeElement, nodeG); // Eliminamos el nodo seleccionado
