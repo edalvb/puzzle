@@ -31,7 +31,7 @@ export class PuzzleComponent implements OnInit, DoCheck {
 
   propertiesImage = {
     titleGame: "Puzzle",
-    urlImage: "https://img1.codigonuevo.com/bd/25/51/large-29-930x600.jpg",
+    urlImage: "",
     partHorizontal: 3,
     partVertical: 3,
     width: 300,
