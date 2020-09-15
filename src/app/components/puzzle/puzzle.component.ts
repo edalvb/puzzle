@@ -1,5 +1,8 @@
 import { Component, Renderer2, ViewChild, ElementRef, OnInit, HostListener, DoCheck } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 
 const reg = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
 
@@ -11,7 +14,15 @@ const reg = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
 export class PuzzleComponent implements OnInit, DoCheck {
   @ViewChild("entorno") entorno: ElementRef;
 
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+    .pipe(
+      map(result => result.matches),
+      shareReplay()
+    );
+
   starGame = false;
+
+  themeDark = false;
 
   firstFormGroup: FormGroup;
   secondFormGroup: FormGroup;
@@ -19,7 +30,8 @@ export class PuzzleComponent implements OnInit, DoCheck {
   firtStepCompleted = false;
 
   propertiesImage = {
-    urlImage: null,
+    titleGame: "Puzzle",
+    urlImage: "https://img1.codigonuevo.com/bd/25/51/large-29-930x600.jpg",
     partHorizontal: 3,
     partVertical: 3,
     width: 300,
@@ -41,11 +53,18 @@ export class PuzzleComponent implements OnInit, DoCheck {
   imageSelected;
   rectSelected;
 
+  jsonPuzzle: string;
+
   constructor(
     private _formBuilder: FormBuilder,
-    private renderer: Renderer2) { }
+    private renderer: Renderer2,
+    private breakpointObserver: BreakpointObserver) { }
 
   ngOnInit() {
+
+    this.jsonPuzzle = this.getJsonFormated();
+
+    console.log(this.propertiesImage);
 
     this.firstFormGroup = this._formBuilder.group({
       part: ['', [Validators.required]],
@@ -55,32 +74,40 @@ export class PuzzleComponent implements OnInit, DoCheck {
       secondCtrl: ['', Validators.required]
     });
 
-    this.getScreenSize();
+    //this.getScreenSize();
 
     this.renderer.listen("document", "mousedown", (event: MouseEvent) => {
       this.selectElement(event);
-      console.log("mousedown");
+      //console.log("mousedown");
     });
 
     this.renderer.listen("document", "mousemove", (event: MouseEvent) => {
       this.moveElement(event);
-      console.log("mousemove");
+      //console.log("mousemove");
     });
 
     this.renderer.listen("document", "mouseout", (event: MouseEvent) => {
       this.deSelectElement(event);
-      console.log("mouseout");
+      //console.log("mouseout");
     });
 
     this.renderer.listen("document", "mouseup", (event: MouseEvent) => {
       this.deSelectElement(event);
-      console.log("mouseup");
+      //console.log("mouseup");
     });
   }
 
   ngDoCheck() {
-    /*console.log("DoCheck")
-    console.log(this.entorno);*/
+    //this.jsonPuzzle = this.getJsonFormated();
+    this.propertiesImage = JSON.parse(this.jsonPuzzle);
+  }
+
+  getJsonFormated(): string {
+    return JSON.stringify(this.propertiesImage)
+      .replace(/,/g, ",\n  ")
+      .replace(/{/, "{\n  ")
+      .replace(/}/, "\n}")
+      .replace(/:/g, ": ");
   }
 
   getErrorMessage(element: AbstractControl) {
@@ -254,12 +281,12 @@ export class PuzzleComponent implements OnInit, DoCheck {
 
     return this.entorno.nativeElement.firstChild.children.namedItem(idClipPath).firstChild;
   }
-
-  @HostListener('window:resize', ['$event'])
-  getScreenSize(event?) {
-    this.screenHeight = window.innerHeight;
-    this.screenWidth = window.innerWidth;
-  }
+  /*
+    @HostListener('window:resize', ['$event'])
+    getScreenSize(event?) {
+      this.screenHeight = window.innerHeight;
+      this.screenWidth = window.innerWidth;
+    }*/
 
   /**
    * Captura la posición del mouse y de la pieza seleccionada y asigna a esta última la propiedad onmousemove

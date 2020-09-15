@@ -1,66 +1,142 @@
-<h3> Points: {{propertiesImage.points}} </h3>
+<mat-sidenav-container [class.temadark]="themeDark">
 
-<ng-container *ngIf="!starGame">
+  <mat-sidenav position="end" #drawer class="sidenav" fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'">
 
-  <mat-form-field id="url" appearance="outline">
-    <mat-label>Url the image</mat-label>
-    <input name="url1" matInput type="url" placeholder="url from image" [(ngModel)]="propertiesImage.urlImage" required>
-    <mat-icon matSuffix>link</mat-icon>
-    <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
-    </mat-error>
-  </mat-form-field>
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <span class="title">{{this.propertiesImage.titleGame}}</span>
+      </mat-toolbar-row>
+    </mat-toolbar>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Parts horizontally</mat-label>
-    <input name="part" matInput type="number" placeholder="A number" [(ngModel)]="propertiesImage.partHorizontal"
-      required>
-    <mat-icon matSuffix>format_list_numbered</mat-icon>
-    <mat-error *ngIf="firstFormGroup.controls.part.invalid">{{getErrorMessage(firstFormGroup.controls.part)}}
-    </mat-error>
-  </mat-form-field>
+    <mat-tab-group mat-align-tabs="center" dynamicHeight>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span>Normal</span>
+        </ng-template>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Parts vertically</mat-label>
-    <input name="part" matInput type="number" placeholder="A number" [(ngModel)]="propertiesImage.partVertical"
-      required>
-    <mat-icon matSuffix>format_list_numbered</mat-icon>
-    <mat-error *ngIf="firstFormGroup.controls.part.invalid">{{getErrorMessage(firstFormGroup.controls.part)}}
-    </mat-error>
-  </mat-form-field>
+        <div class="first-form-field">
+          <mat-form-field appearance="outline">
+            <mat-label>Parts horizontally</mat-label>
+            <input name="part" matInput type="number" placeholder="A number"
+              [(ngModel)]="propertiesImage.partHorizontal" required>
+            <mat-icon matSuffix>format_list_numbered</mat-icon>
+            <mat-error *ngIf="firstFormGroup.controls.part.invalid">
+              {{getErrorMessage(firstFormGroup.controls.part)}}
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Width</mat-label>
-    <input name="width" matInput type="number" [(ngModel)]="propertiesImage.width"
-      [ngModelOptions]="{standalone: true}" required>
-    <mat-icon matSuffix>format_list_numbered</mat-icon>
-    <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
-    </mat-error>
-  </mat-form-field>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Parts vertically</mat-label>
+            <input name="part" matInput type="number" placeholder="A number" [(ngModel)]="propertiesImage.partVertical"
+              required>
+            <mat-icon matSuffix>format_list_numbered</mat-icon>
+            <mat-error *ngIf="firstFormGroup.controls.part.invalid">
+              {{getErrorMessage(firstFormGroup.controls.part)}}
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Height</mat-label>
-    <input name="height" matInput type="number" [(ngModel)]="propertiesImage.height" min="1"
-      [ngModelOptions]="{standalone: true}" required>
-    <mat-icon matSuffix>format_list_numbered</mat-icon>
-    <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
-    </mat-error>
-  </mat-form-field>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Width</mat-label>
+            <input name="width" matInput type="number" [(ngModel)]="propertiesImage.width"
+              [ngModelOptions]="{standalone: true}" required>
+            <mat-icon matSuffix>format_list_numbered</mat-icon>
+            <mat-error *ngIf="firstFormGroup.controls.url.invalid">
+              {{getErrorMessage(firstFormGroup.controls.url)}}
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Atleast covered</mat-label>
-    <input name="height" matInput type="number" [(ngModel)]="propertiesImage.covered" min="1" max="100"
-      [ngModelOptions]="{standalone: true}" required>
-    <mat-icon matSuffix>format_list_numbered</mat-icon>
-    <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
-    </mat-error>
-  </mat-form-field>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Height</mat-label>
+            <input name="height" matInput type="number" [(ngModel)]="propertiesImage.height" min="1"
+              [ngModelOptions]="{standalone: true}" required>
+            <mat-icon matSuffix>format_list_numbered</mat-icon>
+            <mat-error *ngIf="firstFormGroup.controls.url.invalid">
+              {{getErrorMessage(firstFormGroup.controls.url)}}
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-</ng-container>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Atleast covered</mat-label>
+            <input name="height" matInput type="number" [(ngModel)]="propertiesImage.covered" min="1" max="100"
+              [ngModelOptions]="{standalone: true}" required>
+            <mat-icon matSuffix>format_list_numbered</mat-icon>
+            <mat-error *ngIf="firstFormGroup.controls.url.invalid">
+              {{getErrorMessage(firstFormGroup.controls.url)}}
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-<div>
-  <button *ngIf="!starGame" mat-button (click)="start()">Start</button>
-  <!--<button *ngIf="starGame" mat-button (click)="restart()">Restart</button>
-  <button *ngIf="starGame" mat-button (click)="reRandom()">Re random</button>-->
-</div>
+      </mat-tab>
 
-<svg #entorno> </svg>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span>Json</span>
+        </ng-template>
+
+        <div class="first-form-field">
+          <mat-form-field class="jsonPuzzle" appearance="outline">
+            <mat-label>Json Puzzle</mat-label>
+            <textarea name="json_puzzle" matInput rows="11" placeholder="Settings json from image"
+              [(ngModel)]="this.jsonPuzzle" required></textarea>
+            <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+      </mat-tab>
+
+    </mat-tab-group>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="mat-elevation-z6">
+      <mat-toolbar-row>
+
+        <span class="title">{{this.propertiesImage.titleGame}}</span>
+
+        <span class="example-spacer"></span>
+
+        <h3> Points: {{propertiesImage.points}} </h3>
+
+        <button mat-icon-button (click)="themeDark = !themeDark">
+          <mat-icon matPrefix>invert_colors</mat-icon>
+        </button>
+
+        <button fixedInViewport type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()">
+          <mat-icon aria-label="Side nav toggle icon">settings</mat-icon>
+        </button>
+
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <mat-drawer-container class="contenido-main">
+      <div class="container-svg" align="center">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Url the image</mat-label>
+          <input name="url1" matInput type="url" placeholder="url from image" [(ngModel)]="propertiesImage.urlImage"
+            required>
+          <mat-icon matSuffix>link</mat-icon>
+          <mat-error *ngIf="firstFormGroup.controls.url.invalid">{{getErrorMessage(firstFormGroup.controls.url)}}
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="start()">Start</button>
+      </div>
+
+      <svg #entorno> </svg>
+    </mat-drawer-container>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
