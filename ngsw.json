@@ -1,0 +1,86 @@
+{
+  "configVersion": 1,
+  "timestamp": 1600345143874,
+  "index": "/puzzle/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/puzzle/favicon.ico",
+        "/puzzle/index.html",
+        "/puzzle/main-es2015.011cbad1de4a227cb446.js",
+        "/puzzle/main-es5.011cbad1de4a227cb446.js",
+        "/puzzle/manifest.webmanifest",
+        "/puzzle/polyfills-es2015.6022d6f28e0500e60d30.js",
+        "/puzzle/polyfills-es5.6e1055b712d0b250b19e.js",
+        "/puzzle/runtime-es2015.66c79b9d36e7169e27b0.js",
+        "/puzzle/runtime-es5.66c79b9d36e7169e27b0.js",
+        "/puzzle/styles.8456a22c2708720af69b.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/puzzle/assets/icons/icon-128x128.png",
+        "/puzzle/assets/icons/icon-144x144.png",
+        "/puzzle/assets/icons/icon-152x152.png",
+        "/puzzle/assets/icons/icon-192x192.png",
+        "/puzzle/assets/icons/icon-384x384.png",
+        "/puzzle/assets/icons/icon-512x512.png",
+        "/puzzle/assets/icons/icon-72x72.png",
+        "/puzzle/assets/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/puzzle/assets/icons/icon-128x128.png": "dae3b6ed49bdaf4327b92531d4b5b4a5d30c7532",
+    "/puzzle/assets/icons/icon-144x144.png": "b0bd89982e08f9bd2b642928f5391915b74799a7",
+    "/puzzle/assets/icons/icon-152x152.png": "7479a9477815dfd9668d60f8b3b2fba709b91310",
+    "/puzzle/assets/icons/icon-192x192.png": "1abd80d431a237a853ce38147d8c63752f10933b",
+    "/puzzle/assets/icons/icon-384x384.png": "329749cd6393768d3131ed6304c136b1ca05f2fd",
+    "/puzzle/assets/icons/icon-512x512.png": "559d9c4318b45a1f2b10596bbb4c960fe521dbcc",
+    "/puzzle/assets/icons/icon-72x72.png": "c457e56089a36952cd67156f9996bc4ce54a5ed9",
+    "/puzzle/assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
+    "/puzzle/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
+    "/puzzle/index.html": "38d97a2583eb295ee9c1a686c483f576c9b2b434",
+    "/puzzle/main-es2015.011cbad1de4a227cb446.js": "48291e485992603022c96fc85b1fb7cb3b88ab15",
+    "/puzzle/main-es5.011cbad1de4a227cb446.js": "29468f94975b80093ba1c6ace1438dcf433ce8bd",
+    "/puzzle/manifest.webmanifest": "641ba7feec2c36dba9333318754f37a2edf2e4b5",
+    "/puzzle/polyfills-es2015.6022d6f28e0500e60d30.js": "cad3129c71535baaab25ac06d8429734959b0b3f",
+    "/puzzle/polyfills-es5.6e1055b712d0b250b19e.js": "ddab36708d3bfe0102402cd9e170eb47c267b9f8",
+    "/puzzle/runtime-es2015.66c79b9d36e7169e27b0.js": "a9aafcf49f49145093fc831efd9b8e2f6c71bb9c",
+    "/puzzle/runtime-es5.66c79b9d36e7169e27b0.js": "a9aafcf49f49145093fc831efd9b8e2f6c71bb9c",
+    "/puzzle/styles.8456a22c2708720af69b.css": "1c64ef7d748cfa0e001d02bed584f1ded859df8f"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ]
+}
