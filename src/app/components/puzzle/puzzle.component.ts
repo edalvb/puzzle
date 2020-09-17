@@ -1,17 +1,15 @@
-import { Component, Renderer2, ViewChild, ElementRef, OnInit, HostListener, DoCheck } from '@angular/core';
+import { Component, Renderer2, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-
-const reg = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
 
 @Component({
   selector: 'app-puzzle',
   templateUrl: './puzzle.component.html',
   styleUrls: ['./puzzle.component.css',]
 })
-export class PuzzleComponent implements OnInit, DoCheck {
+export class PuzzleComponent implements OnInit {
   @ViewChild("entorno") entorno: ElementRef;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -20,18 +18,9 @@ export class PuzzleComponent implements OnInit, DoCheck {
       shareReplay()
     );
 
-  starGame = false;
-
-  themeDark = false;
-
-  firstFormGroup: FormGroup;
-  secondFormGroup: FormGroup;
-
-  firtStepCompleted = false;
-
   propertiesImage = {
     titleGame: "Puzzle",
-    urlImage: "",
+    urlImage: "https://images8.alphacoders.com/969/thumb-1920-969049.png",
     partHorizontal: 3,
     partVertical: 3,
     width: 300,
@@ -39,10 +28,16 @@ export class PuzzleComponent implements OnInit, DoCheck {
     covered: 85,
     points: 0,
     games: 0
-  }
+  };
 
-  screenHeight: any;
-  screenWidth: any;
+  propertiesImageTemp = {};
+
+  starGame = false;
+
+  themeDark = false;
+
+  firstFormGroup: FormGroup;
+  secondFormGroup: FormGroup;
 
   currentX: number;
   currentY: number;
@@ -50,10 +45,16 @@ export class PuzzleComponent implements OnInit, DoCheck {
   currenPositionImageY: number;
   currenPositionRectX: number;
   currenPositionRectY: number;
-  imageSelected;
-  rectSelected;
+
+  imageSelected: any;
+  rectSelected: any;
 
   jsonPuzzle: string;
+
+  listenMouseDownImage: any;
+  listenMouseMoveImage: any
+  listenMouseOutImage: any;
+  listenMouseUpImage: any;
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -64,8 +65,6 @@ export class PuzzleComponent implements OnInit, DoCheck {
 
     this.jsonPuzzle = this.getJsonFormated();
 
-    console.log(this.propertiesImage);
-
     this.firstFormGroup = this._formBuilder.group({
       part: ['', [Validators.required]],
       url: ['', [Validators.required/*, Validators.pattern(reg)*/]]
@@ -74,32 +73,10 @@ export class PuzzleComponent implements OnInit, DoCheck {
       secondCtrl: ['', Validators.required]
     });
 
-    //this.getScreenSize();
-
-    this.renderer.listen("document", "mousedown", (event: MouseEvent) => {
-      this.selectElement(event);
-      //console.log("mousedown");
-    });
-
-    this.renderer.listen("document", "mousemove", (event: MouseEvent) => {
-      this.moveElement(event);
-      //console.log("mousemove");
-    });
-
-    this.renderer.listen("document", "mouseout", (event: MouseEvent) => {
-      this.deSelectElement(event);
-      //console.log("mouseout");
-    });
-
-    this.renderer.listen("document", "mouseup", (event: MouseEvent) => {
-      this.deSelectElement(event);
-      //console.log("mouseup");
-    });
   }
 
-  ngDoCheck() {
-    //this.jsonPuzzle = this.getJsonFormated();
-    this.propertiesImage = JSON.parse(this.jsonPuzzle);
+  ngAfterViewInit() {
+    this.start();
   }
 
   getJsonFormated(): string {
@@ -135,39 +112,48 @@ export class PuzzleComponent implements OnInit, DoCheck {
     this.clearSVG();
 
     this.renderer.setAttribute(this.entorno.nativeElement, "height", `${this.propertiesImage.height}`);
-    this.renderer.setAttribute(this.entorno.nativeElement, "width", `${this.screenWidth}`);
+    this.renderer.setAttribute(this.entorno.nativeElement, "width", `${window.screen.width}`);
     this.renderer.setAttribute(this.entorno.nativeElement, "viewBox", `0 0 ${this.propertiesImage.width} ${this.propertiesImage.height}`);
 
-    let newDefs = this.renderer.createElement("defs", "http://www.w3.org/2000/svg");
+    const DEFT = this.renderer.createElement("defs", "http://www.w3.org/2000/svg");
 
-    this.renderer.appendChild(this.entorno.nativeElement, newDefs);
+    this.renderer.appendChild(this.entorno.nativeElement, DEFT);
 
-    let widhtPart = this.propertiesImage.width / this.propertiesImage.partHorizontal;
-    let heightPart = this.propertiesImage.height / this.propertiesImage.partVertical;
-    let maxHeight = this.propertiesImage.height - heightPart;
+    const WIDTH_PART = this.propertiesImage.width / this.propertiesImage.partHorizontal;
+    const HEIGHT_PART = this.propertiesImage.height / this.propertiesImage.partVertical;
+    const MAX_HEIGHT = this.propertiesImage.height - HEIGHT_PART;
+
+    let idClip: string;
+
+    let positionInitRectX: number; // [0, 1, 2, 3, ...] * [ancho de la pieza]
+
+    let positionInitRectY: number; // [0, 1, 2, 3, ...] * [alto de la pieza]
+
+    let moveX: number;
+
+    let moveY: number; // Contante aleatoria que va desde (MAX_HEIGHT -positionInitRectY) hasta  positionInitRectY
+
+    let positionRectX: number;
+
+    let positionRectY: number; // Se va a mover desde 0 hasta MAX_HEIGHT
 
     for (let y = 0; y < this.propertiesImage.partVertical; y++) {
       for (let x = 0; x < this.propertiesImage.partHorizontal; x++) {
-        let idClip = `clip${x}${y}`;
+        idClip = `clip${x}${y}`;
 
-        let positionInitRectX = x * widhtPart;
+        positionInitRectX = x * WIDTH_PART;
 
-        let positionInitRectY = y * heightPart; // Posición inicial en Y del Rectangulo
+        positionInitRectY = y * HEIGHT_PART;
 
-        const MOVE_IN_X = widhtPart + positionInitRectX + Math.floor(Math.random() * widhtPart);
+        moveX = this.moveXAllScreen(WIDTH_PART, positionInitRectX);
 
-        /** contante aleatoria que va desde (maxHeight -positionInitRectY) hasta  positionInitRectY*/
-        const MOVE_IN_Y = Math.floor(((maxHeight - positionInitRectY) * Math.random()) + Math.random() * -positionInitRectY);
+        moveY = Math.floor(((MAX_HEIGHT - positionInitRectY) * Math.random()) + Math.random() * -positionInitRectY);
 
-        let positionRectX = positionInitRectX - MOVE_IN_X;
+        positionRectX = positionInitRectX + moveX;
 
-        let positionRectY = positionInitRectY + MOVE_IN_Y; // Se va a mover desde 0 hasta maxHeight
+        positionRectY = positionInitRectY + moveY;
 
-        let positionImageX = -MOVE_IN_X;
-
-        let positionImageY = MOVE_IN_Y; // Se va a mover desde (-positionInitRectY) hasta maxHeight
-
-        this.renderer.appendChild(newDefs, this.createClipPath(idClip, widhtPart, heightPart, positionRectX, positionRectY));
+        this.renderer.appendChild(DEFT, this.createClipPath(idClip, WIDTH_PART, HEIGHT_PART, positionRectX, positionRectY));
 
         if (x == 0 && x == y) {
           this.renderer.appendChild(this.entorno.nativeElement, this.createG(this.propertiesImage.urlImage, this.propertiesImage.height, this.propertiesImage.width, 0.2));
@@ -178,13 +164,25 @@ export class PuzzleComponent implements OnInit, DoCheck {
           this.propertiesImage.height,
           this.propertiesImage.width,
           null,
-          positionImageX,
-          positionImageY,
+          moveX,
+          moveY,
           idClip
         ));
 
       }
     }
+  }
+
+  moveXLeft(widthPart: number, positionInitRectX: number): number {
+    return -(widthPart + positionInitRectX + Math.floor(Math.random() * widthPart));
+  }
+
+  moveXAllScreen(widthPart: number, positionInitRectX: number): number {
+    let positionScreen = (window.screen.width - this.propertiesImage.width) / 2;
+    return Math.floor(
+      Math.random() * (window.screen.width - (positionInitRectX + widthPart + positionScreen)) -
+      Math.random() * (positionInitRectX + positionScreen)
+      );
   }
 
   createImage(
@@ -205,8 +203,13 @@ export class PuzzleComponent implements OnInit, DoCheck {
     opacity == null ? null : this.renderer.setStyle(newImage, "opacity", `${opacity}`);
     this.renderer.setAttribute(newImage, "x", `${x}`);
     this.renderer.setAttribute(newImage, "y", `${y}`);
-    idClipPath == null ? null : this.renderer.setAttribute(newImage, "clip-path", `url(#${idClipPath})`);
     this.renderer.setAttribute(newImage, "preserveAspectRatio", `${preserveAspectRatio}`);
+
+    if (idClipPath != null) {
+      this.renderer.setAttribute(newImage, "clip-path", `url(#${idClipPath})`);
+
+      this.listenMouseDownImage = this.renderer.listen(newImage, "mousedown", (event: MouseEvent) => { this.selectElement(event); });
+    }
 
     return newImage;
   }
@@ -258,85 +261,80 @@ export class PuzzleComponent implements OnInit, DoCheck {
   restart() {
     this.clearSVG();
     this.starGame = false;
+    this.listenMouseDownImage();
+    this.start();
   }
 
-  /**
-   * Change the position the rectangle and image
-   * @param x value to sume in "x" of Rectangle and Image from SVG
-   * @param y value to sume in "y" of Rectangle and Image from SVG
-   */
-  changePosition(x: number, y: number) {
-    // Sum x a atribute x o y the Image and Rectangle
-    this.renderer.setAttribute(this.imageSelected, "x", `${parseFloat(this.getAttribute(this.imageSelected, "x")) + x}`);
-    this.renderer.setAttribute(this.imageSelected, "y", `${parseFloat(this.getAttribute(this.imageSelected, "y")) + y}`);
-    this.renderer.setAttribute(this.rectSelected, "x", `${parseFloat(this.getAttribute(this.rectSelected, "x")) + x}`);
-    this.renderer.setAttribute(this.rectSelected, "y", `${parseFloat(this.getAttribute(this.rectSelected, "y")) + y}`);
-
-  }
-
-  getRectToImage() {
-    let nodeValue = this.getAttribute(this.imageSelected, "clip-path");
+  getRectToImage(el: ElementRef) {
+    let nodeValue = this.getAttribute(el, "clip-path");
 
     let idClipPath = nodeValue.substring(5, nodeValue.length - 1);
 
     return this.entorno.nativeElement.firstChild.children.namedItem(idClipPath).firstChild;
   }
-  /*
-    @HostListener('window:resize', ['$event'])
-    getScreenSize(event?) {
-      this.screenHeight = window.innerHeight;
-      this.screenWidth = window.innerWidth;
-    }*/
 
   /**
    * Captura la posición del mouse y de la pieza seleccionada y asigna a esta última la propiedad onmousemove
    * @param event evento capturado
    */
   selectElement(event: MouseEvent) {
-    if (this.starGame) {
+
+    if (this.imageSelected != event.target) {
       this.imageSelected = this.reordenar(event);
-      this.rectSelected = this.getRectToImage();
-
-      this.currentX = event.clientX;
-      this.currentY = event.clientY;
-
-      this.currenPositionImageX = parseFloat(this.getAttribute(this.imageSelected, "x"));
-      this.currenPositionImageY = parseFloat(this.getAttribute(this.imageSelected, "y"));
-      this.currenPositionRectX = parseFloat(this.getAttribute(this.rectSelected, "x"));
-      this.currenPositionRectY = parseFloat(this.getAttribute(this.rectSelected, "y"));
+      this.rectSelected = this.getRectToImage(this.imageSelected);
     }
+
+    this.currentX = event.clientX;
+    this.currentY = event.clientY;
+
+    this.currenPositionImageX = parseFloat(this.getAttribute(this.imageSelected, "x"));
+    this.currenPositionImageY = parseFloat(this.getAttribute(this.imageSelected, "y"));
+    this.currenPositionRectX = parseFloat(this.getAttribute(this.rectSelected, "x"));
+    this.currenPositionRectY = parseFloat(this.getAttribute(this.rectSelected, "y"));
+
+    this.listenMouseMoveImage = this.renderer.listen(this.imageSelected, "mousemove", (event: MouseEvent) => { this.moveElement(event); });
   }
 
   moveElement(event: MouseEvent) {
-    if (event.target == this.imageSelected && this.starGame) {
-      /** Diferencia entre la posición horizontal del puntero actual y la anterior*/
-      let dx = event.clientX - this.currentX;
-      /** Diferencia entre la posición vertical del puntero actual y la anterior*/
-      let dy = event.clientY - this.currentY;
+    /** Diferencia entre la posición horizontal del puntero actual y la anterior*/
+    let dx = event.clientX - this.currentX;
+    /** Diferencia entre la posición vertical del puntero actual y la anterior*/
+    let dy = event.clientY - this.currentY;
 
-      this.currenPositionImageX += dx;
-      this.currenPositionImageY += dy;
-      this.currenPositionRectX += dx;
-      this.currenPositionRectY += dy
+    this.currenPositionImageX += dx;
+    this.currenPositionImageY += dy;
+    this.currenPositionRectX += dx;
+    this.currenPositionRectY += dy
 
-      this.renderer.setAttribute(this.imageSelected, "x", `${this.currenPositionImageX}`);
-      this.renderer.setAttribute(this.imageSelected, "y", `${this.currenPositionImageY}`);
-      this.renderer.setAttribute(this.rectSelected, "x", `${this.currenPositionRectX}`);
-      this.renderer.setAttribute(this.rectSelected, "y", `${this.currenPositionRectY}`);
+    this.renderer.setAttribute(this.imageSelected, "x", `${this.currenPositionImageX}`);
+    this.renderer.setAttribute(this.imageSelected, "y", `${this.currenPositionImageY}`);
+    this.renderer.setAttribute(this.rectSelected, "x", `${this.currenPositionRectX}`);
+    this.renderer.setAttribute(this.rectSelected, "y", `${this.currenPositionRectY}`);
 
-      this.currentX = event.clientX;
-      this.currentY = event.clientY;
+    this.currentX = event.clientX;
+    this.currentY = event.clientY;
 
-      this.iman();
-    }
+    this.listenMouseOutImage = this.renderer.listen(this.imageSelected, "mouseout", () => { this.deSelectElement(); });
+
+    this.listenMouseUpImage = this.renderer.listen(this.imageSelected, "mouseup", () => { this.deSelectElement(); });
+
+    this.iman();
   }
 
-  deSelectElement(event: MouseEvent) {
-    if (event.target == this.imageSelected && this.starGame) {
-      this.verifyWin();
-      if (this.imageSelected != 0) {
-        this.imageSelected = 0;
-      }
+  deSelectElement() {
+    this.verifyWin();
+    if (this.imageSelected != 0) {
+      // elimina el listen "mousemove" de Image
+      //removeEventListener(this.imageSelected, "mousemove");
+      this.listenMouseMoveImage();
+      // elimina el listen "mouseout" de Image
+      this.listenMouseOutImage();
+      // elimina el listen "mouseup" de Image
+      this.listenMouseUpImage();
+
+      this.listenMouseDownImage = this.renderer.listen(this.imageSelected, "mousedown", (event: MouseEvent) => { this.selectElement(event); });
+
+      this.imageSelected = 0;
     }
   }
 
